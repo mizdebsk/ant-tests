@@ -1,0 +1,63 @@
+<project name="ant-smoke-test">
+  <property name="lib.junit" value="/usr/share/java/junit.jar"/>
+  <property name="lib.hamcrest" value="/usr/share/java/hamcrest/hamcrest.jar"/>
+  <property name="target.dir" value="${basedir}/build"/>
+  <property name="main.build.dir" value="${target.dir}/main"/>
+  <property name="main.src.dir" value="src/main/java"/>
+  <property name="test.build.dir" value="${target.dir}/test"/>
+  <property name="test.src.dir" value="src/test/java"/>
+  <property name="main.javadoc.dir" value="${target.dir}/javadoc"/>
+  <path id="classpath.test">
+    <pathelement location="${lib.junit}"/>
+    <pathelement location="${lib.hamcrest}"/>
+    <pathelement location="${main.build.dir}"/>
+  </path>
+  <target name="clean">
+    <delete dir="${target.dir}"/>
+  </target>
+  <target name="compile">
+    <mkdir dir="${main.build.dir}"/>
+    <javac srcdir="${main.src.dir}" destdir="${main.build.dir}" includeantruntime="false"/>
+  </target>
+  <target name="test-compile" depends="compile">
+    <mkdir dir="${test.build.dir}"/>
+    <javac srcdir="${test.src.dir}" destdir="${test.build.dir}" includeantruntime="false">
+      <classpath refid="classpath.test"/>
+    </javac>
+  </target>
+  <target name="test" depends="test-compile">
+    <junit printsummary="on" haltonfailure="yes" fork="true">
+      <classpath>
+        <path refid="classpath.test"/>
+        <pathelement location="${test.build.dir}"/>
+      </classpath>
+      <formatter type="brief" usefile="false" />
+      <batchtest>
+        <fileset dir="${test.src.dir}" includes="**/*Test.java" />
+      </batchtest>
+    </junit>
+  </target>
+  <target name="javadoc">
+    <javadoc sourcepath="${main.src.dir}" destdir="${main.javadoc.dir}"/>
+  </target>
+  <target name="run" depends="compile">
+    <java fork="true" failonerror="true" classname="tt.My">
+      <classpath>
+        <path refid="classpath.test"/>
+        <pathelement location="${test.build.dir}"/>
+      </classpath>
+      <arg value="${arg1}"/>
+      <arg value="${arg2}"/>
+    </java>
+  </target>
+  <target name="run-nofork" depends="compile">
+    <java fork="false" failonerror="true" classname="tt.My">
+      <classpath>
+        <path refid="classpath.test"/>
+        <pathelement location="${test.build.dir}"/>
+      </classpath>
+      <arg value="${arg1}"/>
+      <arg value="${arg2}"/>
+    </java>
+  </target>
+</project>
